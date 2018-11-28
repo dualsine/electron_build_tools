@@ -1,4 +1,4 @@
-# electron_build_tools
+# electron_build_tools ELECTRON-v4.0.0-nightly.20181010 & Chromium-69.0.3497.106
 
 ##### 0.02 added patch for:
 third_party/blink/renderer/core/css/css_property_id_templates.h:19:8: error: explicit specialization of 'WTF::HashTraits<blink::CSSPropertyID>' after instantiation

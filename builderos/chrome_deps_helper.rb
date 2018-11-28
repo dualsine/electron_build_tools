@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-
+require 'os'
 require 'yaml'
 
 def DEPS_to_rb
@@ -22,19 +22,28 @@ def download( url, dir )
     url = splitted[0]
     commit = splitted[1]
 
-    cmd = "git clone -o #{commit} #{url} --depth=1 #{dir}"
+    `mkdir -p #{dir}`
+    puts `cd #{dir} && git init`
+    cmd="cd #{dir} && git remote add origin #{url}"
     IO.popen(cmd).each do |line|
       puts line.chomp
     end
+    puts `cd #{dir} && git fetch --depth 1 origin #{commit}`
+    puts `cd #{dir} && git checkout FETCH_HEAD`
   end
 end
 
 DEPS_to_rb()
 require '/tmp/DEPS'
 
+if OS.linux?
+  @vars[:checkout_linux] = true
+end
+
 counter = 0
 for dep in @deps
   puts '------------------=-=-=-=-=-=------------------'
+  puts dep.to_yaml
   dir = dep[0]
   if dep[1].class == Hash
     url = dep[1]['url']
