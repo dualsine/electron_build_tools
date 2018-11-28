@@ -38,7 +38,6 @@ entries = {
   'src/third_party/leveldatabase/src': 'https://chromium.googlesource.com/external/leveldb.git@18683981505dc374ce29211c80a9552f8f2f4571',
   'src/third_party/libFuzzer/src': 'https://chromium.googlesource.com/chromium/llvm-project/compiler-rt/lib/fuzzer.git@2f72894d302e6e9af76c7d5e712e043558115602',
   'src/third_party/libaddressinput/src': 'https://chromium.googlesource.com/external/libaddressinput.git@d955c63ec7048d59dffd20af25eeec23da878d27',
-  'src/third_party/libaom/source/libaom': 'https://aomedia.googlesource.com/aom.git@9655bde9fba5b238c7015de53ab03b21fcaea8ec',
   'src/third_party/libdrm/src': 'https://chromium.googlesource.com/chromiumos/third_party/libdrm.git@0061b1f244574e615c415479725046ab2951f09a',
   'src/third_party/libevdev/src': 'https://chromium.googlesource.com/chromiumos/platform/libevdev.git@9f7a1961eb4726211e18abd147d5a11a4ea86744',
   'src/third_party/libjpeg_turbo': 'https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git@a1750dbc79a8792dde3d3f7d7d8ac28ba01ac9dd',
