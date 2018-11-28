@@ -1,0 +1,3 @@
+[submodule "builderos/depot_tools"]
+	path = builderos/depot_tools
+	url = https://chromium.googlesource.com/chromium/tools/depot_tools.git

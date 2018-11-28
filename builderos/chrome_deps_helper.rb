@@ -16,20 +16,25 @@ end
 
 def download( url, dir )
   if url == nil || url.length < 5
-    puts 'wrong url', url
+    #puts 'wrong url', url
   else
     splitted = url.split '@'
     url = splitted[0]
     commit = splitted[1]
 
     `mkdir -p #{dir}`
-    puts `cd #{dir} && git init`
-    cmd="cd #{dir} && git remote add origin #{url}"
-    IO.popen(cmd).each do |line|
-      puts line.chomp
+    system("cd #{dir} && git checkout #{commit} > /dev/null 2>&1")
+    if File.directory?(dir+'/.git') && $? == 0
+      puts "repo is ok - #{url}"
+    else
+      puts "creating repo - #{url}"
+      `cd #{dir} && git init > /dev/null 2>&1`
+      system("cd #{dir} && git remote add origin #{url} > /dev/null 2>&1")
+      system("cd #{dir} && git checkout #{commit} > /dev/null 2>&1")
+      `cd #{dir} && git fetch --depth 1 origin #{commit} > /dev/null 2>&1`
+      `cd #{dir} && git checkout FETCH_HEAD > /dev/null 2>&1`
+      puts "\e[32m\e[1m╰--------------\e[0m HEAD is now #{commit}"
     end
-    puts `cd #{dir} && git fetch --depth 1 origin #{commit}`
-    puts `cd #{dir} && git checkout FETCH_HEAD`
   end
 end
 
@@ -42,8 +47,6 @@ end
 
 counter = 0
 for dep in @deps
-  puts '------------------=-=-=-=-=-=------------------'
-  puts dep.to_yaml
   dir = dep[0]
   if dep[1].class == Hash
     url = dep[1]['url']
@@ -57,6 +60,8 @@ for dep in @deps
   if condition
     if @vars[condition] == true
       download(url, dir)
+    else
+      # puts 'not downloading - condition check failed'
     end
   else
     download(url, dir)

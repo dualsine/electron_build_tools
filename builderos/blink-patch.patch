@@ -15,12 +15,12 @@ index 8f32676407..602bad04ee 100644
 @@ -5,7 +5,7 @@
  #ifndef THIRD_PARTY_BLINK_RENDERER_CORE_CSS_CSS_PROPERTY_ID_TEMPLATES_H_
  #define THIRD_PARTY_BLINK_RENDERER_CORE_CSS_CSS_PROPERTY_ID_TEMPLATES_H_
- 
+
 -#include "third_party/blink/renderer/core/css_property_names.h"
-+#include "/electron_base/electron-gn/src/out/gen/third_party/blink/renderer/core/css_property_names.h"
++#include "third_party/blink/renderer/core/css_property_names.h"
  #include "third_party/blink/renderer/platform/wtf/hash_functions.h"
  #include "third_party/blink/renderer/platform/wtf/hash_traits.h"
- 
+
 @@ -14,17 +14,6 @@ template <>
  struct DefaultHash<blink::CSSPropertyID> {
    typedef IntHash<unsigned> Hash;
@@ -37,7 +37,7 @@ index 8f32676407..602bad04ee 100644
 -  }
 -};
  }  // namespace WTF
- 
+
  #endif  // THIRD_PARTY_BLINK_RENDERER_CORE_CSS_CSS_PROPERTY_ID_TEMPLATES_H_
 diff --git a/third_party/blink/renderer/platform/wtf/hash_traits.h b/third_party/blink/renderer/platform/wtf/hash_traits.h
 index 59ae473c8e..d96906d4c3 100644
@@ -47,10 +47,10 @@ index 59ae473c8e..d96906d4c3 100644
  #include "third_party/blink/renderer/platform/wtf/hash_table_deleted_value_type.h"
  #include "third_party/blink/renderer/platform/wtf/std_lib_extras.h"
  #include "third_party/blink/renderer/platform/wtf/type_traits.h"
-+#include "/electron_base/electron-gn/src/out/gen/third_party/blink/renderer/core/css_property_names.h"
- 
++#include "third_party/blink/renderer/core/css_property_names.h"
+
  namespace WTF {
- 
+
 @@ -135,6 +136,17 @@ struct GenericHashTraits
    typedef T PeekOutType;
    static const T& Peek(const T& value) { return value; }
@@ -66,9 +66,9 @@ index 59ae473c8e..d96906d4c3 100644
 +    return value == blink::numCSSPropertyIDs;
 +  }
 +};
- 
+
  template <typename T>
  struct EnumOrGenericHashTraits<false, T> : GenericHashTraits<T> {};
--- 
+--
 2.20.0.rc1
 

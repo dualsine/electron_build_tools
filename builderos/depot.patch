@@ -1,0 +1,146 @@
+From 4caabeb5a11c729edbb5c186fc3e40f32136853e Mon Sep 17 00:00:00 2001
+From: dualsine <dualsine@gmail.com>
+Date: Thu, 29 Nov 2018 00:30:44 +0100
+Subject: [PATCH] changes for electron_build_tool
+
+Signed-off-by: dualsine <dualsine@gmail.com>
+---
+ gclient.py       |  2 +-
+ gclient_scm.py   | 40 ++++++++++++++++++++++++++++++++++------
+ gclient_utils.py |  1 +
+ 3 files changed, 36 insertions(+), 7 deletions(-)
+
+diff --git a/gclient.py b/gclient.py
+index f45ab735..c1087ce9 100755
+--- a/gclient.py
++++ b/gclient.py
+@@ -3039,7 +3039,7 @@ class OptionParser(optparse.OptionParser):
+       self.error('Cannot specifiy both --gclientfile and --spec')
+     if (options.config_filename and
+         options.config_filename != os.path.basename(options.config_filename)):
+-      self.error('--gclientfile target must be a filename, not a path')
++      print('loading gclient from path')
+     if not options.config_filename:
+       options.config_filename = self.gclientfile_default
+     options.entries_filename = options.config_filename + '_entries'
+diff --git a/gclient_scm.py b/gclient_scm.py
+index 70ec6a95..4aaf1a5c 100644
+--- a/gclient_scm.py
++++ b/gclient_scm.py
+@@ -26,13 +26,35 @@ import git_cache
+ import scm
+ import shutil
+ import subprocess2
+-
++from subprocess import call, STDOUT
++import git
+ 
+ THIS_FILE_PATH = os.path.abspath(__file__)
+ 
+ GSUTIL_DEFAULT_PATH = os.path.join(
+     os.path.dirname(os.path.abspath(__file__)), 'gsutil.py')
+ 
++def is_git_repo(path):
++  try:
++      _ = git.Repo(path).git_dir
++      return True
++  except git.exc.InvalidGitRepositoryError:
++      return False
++
++def check_if_exists(path, revision, url):
++  call(['mkdir', '-p', path])
++  if is_git_repo(path):
++    print("git repository exists in "+path+"\n")
++    return True
++
++  print("git repository NOT exists in "+path+"\n")
++
++  call(['git', 'init'], cwd=path)
++  call(['git', 'remote', 'add', 'origin', url], cwd=path)
++  call(['git', 'fetch', '--depth', '1', 'origin', revision], cwd=path)
++  call(['git', 'checkout', 'FETCH_HEAD'], cwd=path)
++  if git.Repo(path).head.object.hexsha == revision:
++    return True
+ 
+ class NoUsableRevError(gclient_utils.Error):
+   """Raised if requested revision isn't found in checkout."""
+@@ -306,7 +328,7 @@ class GitWrapper(SCMWrapper):
+     """Equivalent to git fetch; git reset."""
+     self._SetFetchConfig(options)
+ 
+-    self._Fetch(options, prune=True, quiet=options.verbose)
++    self._Fetch(options, prune=True, quiet=options.verbose, refspec=revision)
+     self._Scrub(revision, options)
+     if file_list is not None:
+       files = self._Capture(
+@@ -652,7 +674,7 @@ class GitWrapper(SCMWrapper):
+         raise gclient_utils.Error('Invalid Upstream: %s' % upstream_branch)
+ 
+     self._SetFetchConfig(options)
+-    self._Fetch(options, prune=options.force)
++    self._Fetch(options, prune=options.force, refspec=revision)
+ 
+     if not scm.GIT.IsValidRevision(self.checkout_path, revision, sha_only=True):
+       # Update the remotes first so we have all the refs.
+@@ -819,7 +841,7 @@ class GitWrapper(SCMWrapper):
+ 
+     # If the rebase generated a conflict, abort and ask user to fix
+     if self._IsRebasing():
+-      raise gclient_utils.Error('\n____ %s at %s\n'
++      raise gclient_utils.Error('\n____ %s at6 %s\n'
+                                 '\nConflict while rebasing this branch.\n'
+                                 'Fix the conflict and run gclient again.\n'
+                                 'See man git-rebase for details.\n'
+@@ -924,7 +946,7 @@ class GitWrapper(SCMWrapper):
+     else:
+       # May exist in origin, but we don't have it yet, so fetch and look
+       # again.
+-      self._Fetch(options)
++      self._Fetch(options, refspec=rev)
+       if scm.GIT.IsValidRevision(cwd=self.checkout_path, rev=rev):
+         sha1 = rev
+ 
+@@ -1003,6 +1025,9 @@ class GitWrapper(SCMWrapper):
+     parent_dir = os.path.dirname(self.checkout_path)
+     gclient_utils.safe_makedirs(parent_dir)
+ 
++    if check_if_exists(self.checkout_path, revision, url):
++      return True
++
+     template_dir = None
+     if hasattr(options, 'no_history') and options.no_history:
+       if gclient_utils.IsGitSha(revision):
+@@ -1047,7 +1072,7 @@ class GitWrapper(SCMWrapper):
+       if template_dir:
+         gclient_utils.rmtree(template_dir)
+     self._SetFetchConfig(options)
+-    self._Fetch(options, prune=options.force)
++    self._Fetch(options, prune=options.force, refspec=revision)
+     revision = self._AutoFetchRef(options, revision)
+     remote_ref = scm.GIT.RefToRemoteRef(revision, self.remote)
+     self._Checkout(options, ''.join(remote_ref or revision), quiet=True)
+@@ -1296,6 +1321,9 @@ class GitWrapper(SCMWrapper):
+         'fetch',
+         remote or self.remote,
+     ]
++    if check_if_exists(self.checkout_path, refspec, self.url):
++      return True
++
+     if refspec:
+       fetch_cmd.append(refspec)
+ 
+diff --git a/gclient_utils.py b/gclient_utils.py
+index 81bed14b..a2e2f9b7 100644
+--- a/gclient_utils.py
++++ b/gclient_utils.py
+@@ -297,6 +297,7 @@ def CheckCallAndFilterAndHeader(args, always=False, header=None, **kwargs):
+     header = "%s________ running '%s' in '%s'\n" % (
+                  '' if always else '\n',
+                  ' '.join(args), kwargs.get('cwd', '.'))
++    header = ""
+ 
+   if always:
+     stdout.write(header)
+-- 
+2.20.0.rc1
+
