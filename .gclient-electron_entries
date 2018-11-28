@@ -1,0 +1,4 @@
+entries = {
+  'src/electron': 'https://github.com/electron/electron',
+  'src/third_party/electron_node': 'https://github.com/electron/node.git@4d44266b78256449dd6ae86e419e3ec07257b569',
+}
