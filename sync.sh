@@ -74,11 +74,6 @@ echo -e "\e[34m\e[1mLaunching gclient sync for electron\e[0m"
 builderos/depot_tools/gclient sync --with_branch_heads --gclientfile=builderos/.gclient-electron --with_tags --no-history --shallow
 find src/ -type d -name '_gclient_*' -exec rm -r {} \; -prune
 
-cd src
-echo -e "\e[34m\e[1mapplying blink patch\n\e[0m"
-git am < ../builderos/blink-patch.patch
-cd ..
-
 echo -e "\e[34m\e[1mcopying gn_electron_release.sh & gn_electron_debug.sh to src/\n\e[0m"
 cp builderos/gn_electron_release.sh src/.
 cp builderos/gn_electron_debug.sh src/.
